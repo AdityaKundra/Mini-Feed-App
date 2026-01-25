@@ -13,13 +13,13 @@ npm install
 Create a `.env` file in the `backend` folder with:
 
 ```env
-PORT=5000
+PORT=3000
 MONGO_URI=mongodb://localhost:27017/mini-feed
 JWT_SECRET=your-secret-key
 JWT_EXPIRES_IN=7d
 ```
 
-- **PORT** – Server port (default: 5000)
+- **PORT** – Server port (default: 3000)
 - **MONGO_URI** – MongoDB connection string
 - **JWT_SECRET** – Secret used to sign JWTs
 - **JWT_EXPIRES_IN** – Token lifetime (e.g. `7d`, `24h`, `3600`)
@@ -39,11 +39,11 @@ npm run build
 npm start
 ```
 
-The API runs at `http://localhost:5000` (or the port in `.env`).
+The API runs at `http://localhost:3000` (or the port in `.env`).
 
 ### 4. API docs
 
-Swagger UI: **http://localhost:5000/api-docs**
+Swagger UI: **http://localhost:3000/api-docs**
 
 Use **Authorize** with a JWT from `/auth/register` or `/auth/login` to try protected routes.
 
