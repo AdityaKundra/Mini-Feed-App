@@ -66,10 +66,11 @@ export const getPost = async(
             media: post.media,
             author: post.authorId,
             likesCount: post.likes.length,
+            likes: post.likes,
             commentsCount: comments.length,
-            isLikedByCurrentUser,
             comments,
-            createdAt: post.createdAt
+            createdAt: post.createdAt,
+            isLikedByCurrentUser
         });
 
     }catch(err){
@@ -179,6 +180,7 @@ export const getFeed = async(
                 description: post.description,
                 media: post.media,
                 likesCount: post.likes.length,
+                likes: post.likes,
                 commentsCount: countMap.get(String(post._id)) ?? 0,
                 isLikedByCurrentUser,
                 createdAt: post.createdAt
