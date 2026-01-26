@@ -37,11 +37,21 @@ export const swaggerDocument = {
           password: { type: "string" },
         },
       },
+      User: {
+        type: "object",
+        properties: {
+          id: { type: "string" },
+          name: { type: "string" },
+          email: { type: "string" },
+          createdAt: { type: "string", format: "date-time" },
+        },
+      },
       AuthResponse: {
         type: "object",
         properties: {
           message: { type: "string" },
           token: { type: "string" },
+          user: { $ref: "#/components/schemas/User" },
         },
       },
       PostCreate: {
@@ -88,6 +98,7 @@ export const swaggerDocument = {
           author: { $ref: "#/components/schemas/Author" },
           likesCount: { type: "integer" },
           commentsCount: { type: "integer" },
+          isLikedByCurrentUser: { type: "boolean", description: "Whether the current user has liked this post" },
           comments: { type: "array", items: { $ref: "#/components/schemas/CommentItem" } },
           createdAt: { type: "string", format: "date-time" },
         },
@@ -102,6 +113,7 @@ export const swaggerDocument = {
           media: { type: "array", items: { type: "string" } },
           likesCount: { type: "integer" },
           commentsCount: { type: "integer" },
+          isLikedByCurrentUser: { type: "boolean", description: "Whether the current user has liked this post" },
           createdAt: { type: "string", format: "date-time" },
         },
       },
@@ -156,6 +168,20 @@ export const swaggerDocument = {
         responses: {
           "200": { description: "OK", content: { "application/json": { schema: { $ref: "#/components/schemas/AuthResponse" } } } },
           "400": { description: "Email required / Password required / User does not exist / Invalid credentials", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+        },
+      },
+    },
+    "/auth/{id}": {
+      get: {
+        summary: "Get user by ID",
+        tags: ["Auth"],
+        security: [{ bearerAuth: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" }, description: "User ID" }],
+        responses: {
+          "200": { description: "OK", content: { "application/json": { schema: { $ref: "#/components/schemas/User" } } } },
+          "400": { description: "User ID is required", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+          "401": { description: "Unauthorized", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+          "404": { description: "User not found", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
         },
       },
     },

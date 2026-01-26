@@ -31,13 +31,14 @@ export const createPost = async(
 }
 
 export const getPost = async(
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
 )=>{
     try{
 
         const postId = req.params.id as string;
+        const currentUserId = req.userId;
 
         if(!Types.ObjectId.isValid(postId)){
             return res.status(400).json({ message: "Invalid Post ID" });
@@ -53,6 +54,11 @@ export const getPost = async(
         const comments = await Comment.find({postId: postId})
         .populate('author','name');
 
+        // Check if current user liked this post
+        const isLikedByCurrentUser = currentUserId 
+            ? post.likes.some((likeId) => likeId.toString() === currentUserId)
+            : false;
+
         res.status(200).json({
             id: post._id,
             title: post.title,
@@ -61,6 +67,7 @@ export const getPost = async(
             author: post.authorId,
             likesCount: post.likes.length,
             commentsCount: comments.length,
+            isLikedByCurrentUser,
             comments,
             createdAt: post.createdAt
         });
@@ -136,7 +143,7 @@ export const deletePost = async(
 }
 
 export const getFeed = async(
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
 )=>{
@@ -144,6 +151,7 @@ export const getFeed = async(
         const page = Math.max(1, parseInt(String(req.query.page)) || 1);
         const limit = Math.min(50, Math.max(1, parseInt(String(req.query.limit)) || 10));
         const skip = (page - 1) * limit;
+        const currentUserId = req.userId;
 
         const posts = await Post.find()
             .sort({ createdAt: -1 })
@@ -158,16 +166,24 @@ export const getFeed = async(
         ]);
         const countMap = new Map(commentCounts.map((c) => [String(c._id), c.count]));
 
-        const feed = posts.map((post) => ({
-            id: post._id,
-            author: post.authorId,
-            title: post.title,
-            description: post.description,
-            media: post.media,
-            likesCount: post.likes.length,
-            commentsCount: countMap.get(String(post._id)) ?? 0,
-            createdAt: post.createdAt
-        }));
+        const feed = posts.map((post) => {
+            // Check if current user liked this post
+            const isLikedByCurrentUser = currentUserId 
+                ? post.likes.some((likeId) => likeId.toString() === currentUserId)
+                : false;
+
+            return {
+                id: post._id,
+                author: post.authorId,
+                title: post.title,
+                description: post.description,
+                media: post.media,
+                likesCount: post.likes.length,
+                commentsCount: countMap.get(String(post._id)) ?? 0,
+                isLikedByCurrentUser,
+                createdAt: post.createdAt
+            };
+        });
 
         res.status(200).json({ posts: feed, page, limit });
     }catch(err){
