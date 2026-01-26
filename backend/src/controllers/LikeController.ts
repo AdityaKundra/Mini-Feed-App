@@ -34,7 +34,8 @@ export const handleLike = async (
 
         return res.status(200).json({
             message: likedAlready ? "Like removed" : "Post liked",
-            likesCount: post.likes.length
+            likesCount: post.likes.length,
+            isLikedByCurrentUser: !likedAlready,
         });
 
     }catch(err){
