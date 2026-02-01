@@ -1,97 +1,106 @@
-import React, { useState } from 'react';
-import { ScrollView, View, StyleSheet } from 'react-native';
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Colors, Spacing } from '@/constants/theme';
+import React, { useCallback, useMemo, useEffect } from 'react';
+import {View, FlatList, RefreshControl, StyleSheet, TouchableOpacity} from 'react-native';
+import { router, useRouter, useFocusEffect } from 'expo-router';
+import { useFeed } from '@/hooks/useFeed';
+import { Spacing, Colors, FontSize, BorderRadius, Shadows } from '@/constants/theme';
+import { Ionicons } from '@expo/vector-icons';
+import { Text } from '@/components/ui/Text';
+import { PostCard } from '@/components/PostCard';
+
 
 export default function Home() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [title, setTitle] = useState('');
 
-  return (
-    <ScrollView 
-      style={styles.container}
-      contentContainerStyle={styles.content}
-    >
-      {/* Buttons Section */}
-      <View style={styles.section}>
-        <Button 
-          title="Primary Button" 
-          onPress={() => console.log('Primary clicked')} 
-        />
-        
-        <View style={styles.spacing} />
-        
-        <Button 
-          title="Secondary Button" 
-          onPress={() => console.log('Secondary clicked')}
-          variant="secondary"
-        />
-        
-        <View style={styles.spacing} />
-        
-        <Button 
-          title="Outline Button" 
-          onPress={() => console.log('Outline clicked')}
-          variant="outline"
-        />
-        
-        <View style={styles.spacing} />
-        
-        <Button 
-          title="Disabled Button" 
-          onPress={() => {}}
-          disabled
-        />
-        
-        <View style={styles.spacing} />
-        
-        <Button 
-          title="Loading Button" 
-          onPress={() => {}}
-          loading
+  const router = useRouter();
+
+  const {posts,
+    loadMore,
+    loading,
+    Refreshing,
+    morePost,
+    error,
+    loadMorePost,
+    refresh,
+    likedPostIds,
+    toogleLikes} = useFeed();
+
+    const handlePostPress = useCallback((postId: string) => {
+      router.push(`/post/${postId}`);
+    }, [router]);
+
+    const handleCreatePost = useCallback(()=>{
+      router.push(`/add-post`);
+    },[router])
+
+    const renderItem = useCallback(({ item }: { item: any }) => (
+      <PostCard
+        post={item}
+        onLike={toogleLikes}
+        onPress={handlePostPress}
+      />
+    ), [toogleLikes, handlePostPress]);
+
+    const postsKeys = useCallback((item: any) => item.id, [])
+
+    const memoizedData = useMemo(() => posts, [posts])
+
+    // Removed automatic refresh on focus to prevent continuous API calls
+    // Users can manually refresh via pull-to-refresh when needed
+
+    const renderFooter = useCallback(() => {
+      if (!loadMore) return null;
+      return (
+        <View style={styles.footer}>
+          <Text>Loading more posts...</Text>
+        </View>
+      );
+    }, [loadMore]);
+  
+    const renderEmpty = useCallback(() => {
+      if (loading) return null;
+      return (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>No posts yet. Be the first to create one!</Text>
+        </View>
+      );
+    }, [loading]);
+
+    if (error) {
+      return (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity onPress={refresh} style={styles.retryButton}>
+            <Text style={styles.retryText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+  
+    return (
+      <View style={styles.container}>
+        <FlatList
+        data={memoizedData}
+        renderItem={renderItem}
+        keyExtractor={postsKeys}
+        onEndReached={loadMorePost}
+        onEndReachedThreshold={0.5}
+        refreshControl={
+          <RefreshControl
+            refreshing={Refreshing}
+            onRefresh={refresh}
+            tintColor={Colors.primary}
+            colors={[Colors.primary]}
+          />
+        }
+        ListFooterComponent={renderFooter}
+        ListEmptyComponent={renderEmpty}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[
+          styles.listContent,
+          posts.length === 0 ? styles.emptyList : undefined
+        ]}
         />
       </View>
-
-      {/* Inputs Section */}
-      <View style={styles.section}>
-        <Input
-          label="E-mail Address"
-          value={email}
-          onChangeText={setEmail}
-          placeholder="alina.solvaeica@gmail.com"
-          icon="mail-outline"
-          keyboardType="email-address"
-        />
-        
-        <Input
-          label="Password"
-          value={password}
-          onChangeText={setPassword}
-          placeholder="Enter your password"
-          icon="lock-closed-outline"
-          secureTextEntry
-        />
-        
-        <Input
-          label="Title"
-          value={title}
-          onChangeText={setTitle}
-          placeholder="Enter title"
-          maxLength={70}
-        />
-        
-        <Input
-          label="Input with Error"
-          value=""
-          onChangeText={() => {}}
-          placeholder="This field has an error"
-          error="This field is required"
-        />
-      </View>
-    </ScrollView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -99,13 +108,55 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
-  content: {
+  listContent: {
+    paddingVertical: Spacing.sm,
+  },
+  headerRight: {
+    marginRight: Spacing.md,
+  },
+  footer: {
     padding: Spacing.lg,
+    alignItems: 'center',
   },
-  section: {
-    marginBottom: Spacing.xl,
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: Spacing.xl,
   },
-  spacing: {
-    height: Spacing.md,
+  emptyText: {
+    fontSize: FontSize.headlineSmall,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    marginBottom: Spacing.lg,
+    fontWeight: '500',
+  },
+  emptyList: {
+    flexGrow: 1,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: Spacing.xl,
+  },
+  errorText: {
+    color: Colors.error,
+    fontSize: FontSize.bodyLarge,
+    textAlign: 'center',
+    marginBottom: Spacing.lg,
+    fontWeight: '500',
+  },
+  retryButton: {
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.lg,
+    backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.lg,
+    ...Shadows.md,
+  },
+  retryText: {
+    color: Colors.surface,
+    fontSize: FontSize.labelLarge,
+    fontWeight: '600',
   },
 });

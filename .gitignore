@@ -32,3 +32,6 @@ Thumbs.db
 .cache/
 coverage/
 .nyc_output/
+
+# Uploads
+backend/uploads/

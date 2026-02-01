@@ -1,5 +1,5 @@
 import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, ViewStyle, TextStyle } from 'react-native';
-import { Colors, BorderRadius, Spacing } from '@/constants/theme';
+import { Colors, BorderRadius, Spacing, Shadows } from '@/constants/theme';
 
 interface ButtonProps {
   title: string;
@@ -11,7 +11,7 @@ interface ButtonProps {
   fullWidth?: boolean;
 }
 
-export function Button({
+export const Button = ({
   title,
   onPress,
   variant = 'primary',
@@ -19,7 +19,7 @@ export function Button({
   loading = false,
   style,
   fullWidth = true,
-}: ButtonProps) {
+}: ButtonProps) => {
   const getButtonStyle = () => {
     if (disabled || loading) {
       return [styles.button, styles.disabled, fullWidth && styles.fullWidth, style];
@@ -83,33 +83,36 @@ const styles = StyleSheet.create({
   },
   primary: {
     backgroundColor: Colors.primary,
+    ...Shadows.md,
   },
   secondary: {
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
     borderColor: Colors.border,
+    ...Shadows.sm,
   },
   outline: {
     backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: Colors.border,
+    borderWidth: 2,
+    borderColor: Colors.primary,
   },
   disabled: {
-    backgroundColor: Colors.border,
+    backgroundColor: Colors.textMuted,
     opacity: 0.6,
+    ...Shadows.none,
   },
   primaryText: {
-    color: Colors.background,
+    color: Colors.surface,
     fontSize: 16,
     fontWeight: '600',
   },
   secondaryText: {
-    color: Colors.textPrimary,
+    color: Colors.primary,
     fontSize: 16,
     fontWeight: '600',
   },
   disabledText: {
-    color: Colors.textSecondary,
+    color: Colors.surface,
     fontSize: 16,
     fontWeight: '600',
   },
