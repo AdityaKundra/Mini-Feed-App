@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import { User } from '../models/User';
-import bcrypt from "bcryptjs";
 import { generateToken } from "../utils/jwt";
 import { comparePassword, hashPassword } from '../utils/hash'
 
@@ -90,6 +89,7 @@ export const loginUser = async (
             createdAt: existingUser.createdAt
         };
 
+console.log('userDetails', userDetails);
         return res.status(200).json({ 
             message: "User logged in successfully", 
             token,

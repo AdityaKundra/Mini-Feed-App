@@ -5,12 +5,11 @@ dotenv.config();
 import app from "./app";
 import { connectDB } from "./config/db";
 
-const PORT = process.env.PORT || 3000;
+const PORT = parseInt(process.env.PORT || '4000', 10);
 
 const startServer = async () => {
     try {
-        // Start server first
-        app.listen(PORT, () => console.log(`Server is running on http://localhost:${PORT}`));
+        app.listen(PORT, '0.0.0.0', () => console.log(`Server is running on http://0.0.0.0:${PORT}`));
         
         try {
             await connectDB();

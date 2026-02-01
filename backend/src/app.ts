@@ -2,7 +2,10 @@ import express from "express";
 import cors from "cors";
 import swaggerUi from "swagger-ui-express";
 import { authMiddleware } from "./middleware/auth.middleware";
+import { errorHandler, notFoundHandler, requestLogger, corsErrorHandler } from "./middleware/error.middleware";
+// import { apiLimiter, authLimiter, securityHeaders, sanitizeInput } from "./middleware/security.middleware";
 import { swaggerDocument } from "./swagger";
+
 // Routes Imports
 import authRoutes from "./routes/Auth";
 import postRoutes from "./routes/Post";
@@ -11,15 +14,38 @@ import likeRoutes from "./routes/Like";
 
 const app = express();
 
-app.use(cors());
+
+const corsOptions = {
+  origin: true,
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With"]
+};
+
+app.use(cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
+
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// app.use(securityHeaders);
+
+// app.use(requestLogger);
+
+// app.use(sanitizeInput);
+
+// app.use('/api', apiLimiter);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// Auth Routes
 app.use("/auth", authRoutes);
-app.use("/post", authMiddleware, postRoutes);
-app.use("/comment", authMiddleware, commentRoutes);
-app.use("/like", authMiddleware, likeRoutes);
+
+app.use("/posts", authMiddleware, postRoutes);
+app.use("/comments", authMiddleware, commentRoutes);
+app.use("/likes", authMiddleware, likeRoutes);
+
+app.use(corsErrorHandler);
+app.use(errorHandler);
+app.use(notFoundHandler);
 
 export default app;

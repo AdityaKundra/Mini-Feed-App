@@ -5,7 +5,7 @@ export const swaggerDocument = {
     version: "1.0.0",
     description: "API for a mini social feed: auth, posts, comments, and likes.",
   },
-  servers: [{ url: "http://localhost:3000", description: "Local" }],
+  servers: [{ url: "http://localhost:4000", description: "Local" }],
   components: {
     securitySchemes: {
       bearerAuth: {
