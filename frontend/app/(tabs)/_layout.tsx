@@ -17,7 +17,7 @@ export default function TabLayout() {
   const themeColors = getThemeColors(mode);
 
   const handleCreatePost = () => {
-    router.push('/add-post');
+    router.push('/(tabs)/add-post');
   };
 
   const handleLogout = async () => {
@@ -49,10 +49,10 @@ export default function TabLayout() {
           headerRight: () => (
             <View style={{ flexDirection: 'row', marginRight: Spacing.md, gap: Spacing.md }}>
               <TouchableOpacity onPress={toggleTheme}>
-                <Ionicons 
-                  name={mode === 'dark' ? 'sunny' : 'moon'} 
-                  size={24} 
-                  color={themeColors.primary} 
+                <Ionicons
+                  name={mode === 'dark' ? 'sunny' : 'moon'}
+                  size={24}
+                  color={themeColors.primary}
                 />
               </TouchableOpacity>
               <TouchableOpacity onPress={handleLogout}>
@@ -76,7 +76,7 @@ export default function TabLayout() {
         listeners={{
           tabPress: (e) => {
             e.preventDefault();
-            router.push('/add-post');
+            router.push('/(tabs)/add-post');
           },
         }}
       />

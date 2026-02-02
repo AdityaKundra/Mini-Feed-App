@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Text } from '@/components/ui/Text';
 import { Colors, Spacing } from '@/constants/theme';
 import logo from '@/assets/images/logo.png';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SplashScreen() {
   const { isAuthenticated, loading } = useAuth();
@@ -25,13 +26,15 @@ export default function SplashScreen() {
   }, [loading, isAuthenticated]);
 
   return (
-    <View style={styles.container}>
-      <Image source={logo} style={styles.appLogo} />
-      <Text variant="heading" style={styles.title}>
-        Mini Feed
-      </Text>
-      <ActivityIndicator size="large" color={Colors.primary} style={styles.loader} />
-    </View>
+    <SafeAreaView>
+      <View style={styles.container}>
+        <Image source={logo} style={styles.appLogo} />
+        <Text variant="heading" style={styles.title}>
+          Mini Feed
+        </Text>
+        <ActivityIndicator size="large" color={Colors.primary} style={styles.loader} />
+      </View>
+    </SafeAreaView>
   );
 }
 

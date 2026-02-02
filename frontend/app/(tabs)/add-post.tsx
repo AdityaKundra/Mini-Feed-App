@@ -9,6 +9,7 @@ import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { createPost } from '@/api/post';
 import { useAuth } from '@/hooks/useAuth';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface CreatePostFormData {
   title: string;
@@ -35,7 +36,7 @@ export default function AddPostScreen() {
 
       await createPost(data.title.trim(), data.description.trim());
 
-      router.replace('/(tabs)');
+      router.back();
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -44,94 +45,100 @@ export default function AddPostScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.replace('/(tabs)')} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
-        </TouchableOpacity>
-        <Text variant="heading" style={styles.headerTitle}>Create Post</Text>
-        <View style={styles.placeholder} />
-      </View>
-
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <View style={styles.form}>
-          {error ? (
-            <View style={styles.errorContainer}>
-              <Text variant="caption" style={styles.errorText}>{error}</Text>
-            </View>
-          ) : null}
-
-          <Controller
-            control={control}
-            name="title"
-            rules={{
-              required: 'Title is required',
-              minLength: {
-                value: 1,
-                message: 'Title cannot be empty'
-              },
-              maxLength: {
-                value: 100,
-                message: 'Title must be less than 100 characters'
-              }
-            }}
-            render={({ field, fieldState }) => (
-              <Input
-                label="Title"
-                placeholder="Enter post title"
-                value={field.value}
-                onChangeText={field.onChange}
-                error={fieldState.error?.message}
-                maxLength={100}
-              />
-            )}
-          />
-
-          <Controller
-            control={control}
-            name="description"
-            rules={{
-              required: 'Description is required',
-              minLength: {
-                value: 1,
-                message: 'Description cannot be empty'
-              },
-              maxLength: {
-                value: 500,
-                message: 'Description must be less than 500 characters'
-              }
-            }}
-            render={({ field, fieldState }) => (
-              <Input
-                label="Description"
-                placeholder="What's on your mind?"
-                value={field.value}
-                onChangeText={field.onChange}
-                error={fieldState.error?.message}
-                multiline
-                numberOfLines={4}
-                maxLength={500}
-              />
-            )}
-          />
-
-          <Button
-            title="Create Post"
-            onPress={handleSubmit(handleCreatePost)}
-            disabled={!isValid || isSubmitting}
-            loading={isSubmitting}
-            style={styles.submitButton}
-          />
+    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
+          </TouchableOpacity>
+          <Text variant="heading" style={styles.headerTitle}>Create Post</Text>
+          <View style={styles.placeholder} />
         </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          <View style={styles.form}>
+            {error ? (
+              <View style={styles.errorContainer}>
+                <Text variant="caption" style={styles.errorText}>{error}</Text>
+              </View>
+            ) : null}
+
+            <Controller
+              control={control}
+              name="title"
+              rules={{
+                required: 'Title is required',
+                minLength: {
+                  value: 1,
+                  message: 'Title cannot be empty'
+                },
+                maxLength: {
+                  value: 100,
+                  message: 'Title must be less than 100 characters'
+                }
+              }}
+              render={({ field, fieldState }) => (
+                <Input
+                  label="Title"
+                  placeholder="Enter post title"
+                  value={field.value}
+                  onChangeText={field.onChange}
+                  error={fieldState.error?.message}
+                  maxLength={100}
+                />
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="description"
+              rules={{
+                required: 'Description is required',
+                minLength: {
+                  value: 1,
+                  message: 'Description cannot be empty'
+                },
+                maxLength: {
+                  value: 500,
+                  message: 'Description must be less than 500 characters'
+                }
+              }}
+              render={({ field, fieldState }) => (
+                <Input
+                  label="Description"
+                  placeholder="What's on your mind?"
+                  value={field.value}
+                  onChangeText={field.onChange}
+                  error={fieldState.error?.message}
+                  multiline
+                  numberOfLines={4}
+                  maxLength={500}
+                />
+              )}
+            />
+
+            <Button
+              title="Create Post"
+              onPress={handleSubmit(handleCreatePost)}
+              disabled={!isValid || isSubmitting}
+              loading={isSubmitting}
+              style={styles.submitButton}
+            />
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
   container: {
     flex: 1,
     backgroundColor: Colors.background,

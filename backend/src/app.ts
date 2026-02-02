@@ -3,7 +3,7 @@ import cors from "cors";
 import swaggerUi from "swagger-ui-express";
 import { authMiddleware } from "./middleware/auth.middleware";
 import { errorHandler, notFoundHandler, requestLogger, corsErrorHandler } from "./middleware/error.middleware";
-// import { apiLimiter, authLimiter, securityHeaders, sanitizeInput } from "./middleware/security.middleware";
+
 import { swaggerDocument } from "./swagger";
 
 // Routes Imports
@@ -27,14 +27,6 @@ app.options(/.*/, cors(corsOptions));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// app.use(securityHeaders);
-
-// app.use(requestLogger);
-
-// app.use(sanitizeInput);
-
-// app.use('/api', apiLimiter);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
