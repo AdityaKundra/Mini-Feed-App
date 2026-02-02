@@ -202,7 +202,7 @@ export const Fonts = Platform.select({
 export const __DEV__ = true;
 
 // Use http when backend is running without TLS on local network
-export const API_BASE_URI = 'http://192.168.11.16:4000';
+export const API_BASE_URI = 'http://172.16.3.219:4000';
 
 export const STORAGE_KEYS = {
   AUTH_TOKEN: 'authToken',

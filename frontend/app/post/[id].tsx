@@ -6,6 +6,8 @@ import {
   Alert,
   Modal,
   TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,6 +17,7 @@ import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
 import { Colors, Spacing, BorderRadius } from '@/constants/theme';
 import { usePost } from '@/hooks/usePost';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function PostDetail() {
   const params = useLocalSearchParams<{ id?: string | string[], refresh?: string }>();
@@ -145,41 +148,49 @@ export default function PostDetail() {
         </View>
       </ScrollView>
 
-      <Modal visible={commentModalVisible} animationType="slide">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <TouchableOpacity onPress={() => setCommentModalVisible(false)}>
-              <Text style={styles.cancelButton}>Cancel</Text>
-            </TouchableOpacity>
+      <Modal visible={commentModalVisible} animationType="slide" presentationStyle="pageSheet">
+        <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+          <KeyboardAvoidingView
+            style={styles.modalContainer}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={0}
+          >
+            <View style={styles.modalHeader}>
+              <TouchableOpacity onPress={() => setCommentModalVisible(false)}>
+                <Text style={styles.cancelButton}>Cancel</Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity
-              onPress={handleSubmitComment}
-              disabled={submittingComment}
-            >
-              <Text
-                style={{
-                  ...styles.postButton,
-                  ...(submittingComment ? styles.disabledButton : {}),
-                }}
+              <Text style={styles.modalTitle}>Add Comment</Text>
+
+              <TouchableOpacity
+                onPress={handleSubmitComment}
+                disabled={submittingComment}
               >
-                {submittingComment ? 'Posting…' : 'Post'}
-              </Text>
-            </TouchableOpacity>
-          </View>
+                <Text
+                  style={{
+                    ...styles.postButton,
+                    ...(submittingComment ? styles.disabledButton : {}),
+                  }}
+                >
+                  {submittingComment ? 'Posting…' : 'Post'}
+                </Text>
+              </TouchableOpacity>
+            </View>
 
-          <View style={styles.modalContent}>
-            <Input
-              label=""
-              value={commentText}
-              onChangeText={setCommentText}
-              placeholder="Write a comment..."
-              error={commentError}
-              multiline
-              maxLength={200}
-              style={styles.commentInput}
-            />
-          </View>
-        </View>
+            <View style={styles.modalContent}>
+              <Input
+                label=""
+                value={commentText}
+                onChangeText={setCommentText}
+                placeholder="Write a comment..."
+                error={commentError}
+                multiline
+                maxLength={200}
+                style={styles.commentInput}
+              />
+            </View>
+          </KeyboardAvoidingView>
+        </SafeAreaView>
       </Modal>
     </>
   );
@@ -210,11 +221,25 @@ const styles = StyleSheet.create({
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     padding: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.separator,
+  },
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.textPrimary,
   },
   cancelButton: { color: Colors.primary },
   postButton: { color: Colors.primary, fontWeight: '600' },
   disabledButton: { opacity: 0.5 },
-  modalContent: { padding: Spacing.md },
+  modalContent: { padding: Spacing.md, flex: 1 },
   commentInput: { minHeight: 120 },
+  safeArea: {
+    flex: 1,
+    backgroundColor: Colors.background,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.xs,
+  },
 });
